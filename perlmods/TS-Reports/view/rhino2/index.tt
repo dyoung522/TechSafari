@@ -1,0 +1,5 @@
+
+[% META title = 'TechSafari Rhino2 Reports' -%]
+[% PROCESS rhino2/reports_list.tt %]
+
+

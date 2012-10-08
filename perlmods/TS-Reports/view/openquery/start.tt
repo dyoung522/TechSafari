@@ -1,0 +1,14 @@
+
+[% META title = 'Flex Reports' -%]
+
+Run open queries against the rhino2 database on duvel
+
+<form method="post" action="[% form_action %]">
+<table>
+  <tr><td>Report Name</td><td><input type="text" name="name"></td></tr>
+  <tr><td>Report Title</td><td><input type="text" name="title"></td></tr>
+  <tr><td colspan=2>Query</td></tr>
+  <tr><td colspan=2><textarea name="query" rows="25" cols="100"></textarea></td></tr>
+</table>
+<input type="submit" name="Submit" value="Submit">
+</form>

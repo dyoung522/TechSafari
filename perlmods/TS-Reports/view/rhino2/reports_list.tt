@@ -1,0 +1,23 @@
+<h2> Rhino2 Reports </h2>
+
+[% IF controller_path == '/'; 
+   SET old_controller_path = controller_path;
+   SET controller_path='/rhino2'; 
+   END %]
+   
+<ul>
+  <li> <a href="[% c.uri_for(controller_path, 'billing_report') %]">
+       Billing Report</a> 
+  </li>
+
+  <li> <a href="[% c.uri_for(controller_path, 'query_report') %]">
+       Daily Query Report</a> 
+  </li>
+
+  <li> <a href="[% c.uri_for(controller_path, 'trigger_report') %]">
+       Daily Trigger Report</a> 
+  </li>
+ 
+</ul>
+
+[% IF old_controller_path; SET controller_path = old_controller_path; END %]

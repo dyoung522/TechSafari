@@ -1,0 +1,91 @@
+
+##################################################################
+#
+# Basic TS Reports package perl dependencies
+#
+
+Command line interaction:
+  MooseX::SimpleConfig *
+  MooseX::Getopt *
+  Pod::Usage *
+
+DateTime Manipulation
+  DateTime
+  DateTime::Format::DateManip *
+  DateTime::Format::MySQL
+  Date::Manip * 
+
+Database Interaction
+  DBD::mysql
+  DBI
+  DBIx::Class *
+  SQL::Translator *
+
+Email
+  MIME::Lite
+
+Moose / Meta OOP stuff
+  Moose
+    Class::C3 **
+    Class::MOP **
+    Sub::Identify **
+
+Templating / Document creation
+  Excel::Template
+  Excel::Template::Plus
+  Spreadsheet::WriteExcel
+  Template
+  Text::CSV
+  Text::CSV_XS * (makes Text::CSV run faster)
+
+Config files
+  Config::Any * 
+  Config::Tiny *
+  YAML
+
+Unit Testing (should be pulled in from other dependencies)
+  Test::More
+  Test::Exception
+
+* Optional / Reserved for future use.
+** sub dependencies of Moose - should be auto installed by cpan, 
+   but in case there are problems, try manually installing
+
+##################################################################
+#
+# Other cool stuff
+#
+
+Perl coding standards / best-practices:  I run all my code through
+these modules b/c they help to enforce coding standards / best practices
+
+  Perl::Critic
+  Perl::Tidy
+
+Development tools
+
+  Devel::REPL
+  
+
+###################################################################
+#
+# To run reports from a website, using Catalyst as an MVC framework
+#
+
+Catalyst dependencies:
+
+Install catalyst with cat-install:
+
+http://www.shadowcatsystems.co.uk/static/cat-install
+
+other ways to install it are listed, here:
+
+http://search.cpan.org/~mramberg/Catalyst-Runtime-5.7014/lib/Catalyst/Manual/Installation.pod
+
+Catalyst::Model::DBI
+Catalyst::Model::DBIC::Schema
+Catalyst::Plugin::Breadcrumbs
+Catalyst::View::Excel::Template::Plus
+Catalyst::View::TT
+
+

@@ -1,0 +1,32 @@
+
+[% META title = "Flex Reports" -%]
+
+  <h2 class="title">[% sheet.title %]</h2>
+
+  <table class="worksheet" cellspacing="0">
+    <thead>
+      <tr class="worksheet_header">
+        [% FOREACH col = sheet.colnames %]
+          <td class="worksheet_header">[% col %]</td>
+        [% END %]
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH row = sheet.table %]
+        <tr class="worksheet_body">
+          [% FOREACH col = row %]
+            <td>[% col %]</td>
+          [% END %]
+        </tr>
+      [% END %]
+    </tbody>
+    <tfoot>
+      <tr class="worksheet_footer">
+        [% FOREACH col = sheet.summary %]
+          <td>[% col %]</td>
+        [% END %]
+      </tr>
+    </tfoot>
+  </table>
+
+<a href="[% link.start_over %]">start over</a>

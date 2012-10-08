@@ -1,0 +1,48 @@
+#
+# Configuration file for the rhino2 process start/stop script
+#
+# This file should live at /etc/sysconfig/rhino2
+#
+# Where the Rhino2 files are located
+R2HOME="/usr/local/rhino2"
+
+# Where we should create our logfile(s)
+R2LOG="/var/log/rhino2"
+
+# How many historic log files should we keep? (Rotates on each startup)
+KEEPLOG=10
+
+# Where is our FIFO file?
+R2FIFO="$R2HOME/fifo"
+
+# Who should we run as?
+R2USER="tuser"
+
+# The list of valid processes started by r2sys_control which can be relaoded
+VALIDPROCS="\
+Logger|\
+Registry|\
+SQL|\
+SQLProc|\
+CountPool|\
+CountProc|\
+AppendPool|\
+AppendProc|\
+SuppressPool|\
+SuppressProc|\
+ResultsPool|\
+ResultsProc|\
+OrderPool|\
+OrderProc|\
+RequestQueue|\
+RQHandler|\
+RQHandler|\
+QuickCount|\
+HttpHandler|\
+CASS|\
+ITALookup|\
+XmlHandler|\
+Example|\
+TSMPool|\
+TSMProc|\
+L2CTunnel"

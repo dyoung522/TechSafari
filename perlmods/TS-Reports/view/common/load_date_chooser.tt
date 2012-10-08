@@ -1,0 +1,28 @@
+	<script type="text/javascript">
+
+    events.add(window, 'load', WindowLoad);
+
+    function WindowLoad() {
+
+      var date_input = document.getElementById('date_chooser_div');
+      date_input.DateChooser = new DateChooser();
+
+      // Check if the browser has fully loaded the DateChooser object, and supports it.
+      if (!date_input.DateChooser.display)
+      {
+        return false;
+      }
+
+      date_input.DateChooser.setCloseTime(200);
+      date_input.DateChooser.setXOffset(10);
+      date_input.DateChooser.setYOffset(-10);
+      date_input.DateChooser.setUpdateFunction(
+        function (objDate) {
+          var date_str = objDate.getPHPDate('Y-m-d');
+          document.getElementById('date_chooser_input').value = date_str;     
+        }
+      );
+      document.getElementById('date_chooser_link').onclick
+        = date_input.DateChooser.display;
+    }
+  </script>

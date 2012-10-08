@@ -1,0 +1,14 @@
+
+<div id="breadcrumbs"> 
+ <ul>
+    [%- FOREACH item IN c.breadcrumbs -%]
+    <li> /
+        [%- IF loop.last -%]
+            [% item.label -%]
+        [%- ELSE -%]
+            <a href="[% c.uri_for(item.path) %]">[%- item.label -%]</a>
+        [%- END -%]
+    </li>
+    [%- END -%]  
+ </ul>
+</div>

@@ -1,0 +1,2 @@
+XmlHandler\d+\|.*\|Error reading request\. Socket may have closed\.
+SQLProc.*\|Connection to database has died\.

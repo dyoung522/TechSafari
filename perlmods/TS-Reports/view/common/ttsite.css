@@ -1,0 +1,112 @@
+
+html {
+    height: 100%;
+}
+
+body{ 
+    background-color: [% site.col.page %];
+    color: [% site.col.text %];
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    font-family: Verdana;
+    font-weight: normal;
+}
+
+.borderless {
+  border : 0;
+}
+
+#header {
+    background-color: [% site.col.head %];
+    border-bottom: 1px solid [% site.col.line %];
+}
+
+#footer {
+    background-color: [% site.col.head %];
+    text-align: center;
+    border-top: 1px solid [% site.col.line %];
+    width: 100%;
+    padding: 4px;
+}
+
+#content {
+    padding: 10px;
+}
+
+h1.title {
+    padding: 4px;
+    margin: 0px;
+}
+
+h2.title {
+    padding: 4px;
+    margin: 0px;
+    font-size : 1.1em;  
+}
+
+.message {
+    color: [% site.col.message %];
+}
+
+.error {
+    color: [% site.col.error %];
+}
+
+span {
+  padding : 0 .25em 0 .25em;
+}
+
+table.worksheet {  
+
+  border           : 1px [% site.col.line %] solid;
+  border-collapse  : collapse;
+  border-spacing   : 0px;
+  margin-top       : 0px;
+  font-size : .9em;
+}
+
+
+table.worksheet td.worksheet_header { 
+  border-bottom    : 1px solid [% site.col.line %];
+  background-color : [% site.col.head %];
+  text-align       : left;
+  font-weight      : bold;
+  font-size : .9em;
+}
+
+
+table.worksheet td { 
+  border-bottom : 1px dotted [% site.col.head %];
+  text-align    : left;
+  padding-left  : 3px;
+  font-size : .9em;
+}
+
+table.worksheet td.worksheet_footer { 
+  font-weight : bold;
+  font-size : .9em;
+}
+
+#breadcrumbs {
+  font-size: .9em; 
+  margin-left : 2em;
+  margin-top  : .5em;
+  margin-bottom : 0;
+  padding : 0;
+}
+#breadcrumbs ul { padding: 0; margin: 0; } 
+
+#breadcrumbs li { list-style: none; display: inline; }
+
+table.formtable {  
+  border           : 1px [% site.col.line %] solid;
+  border-collapse  : collapse;
+  border-spacing   : 0px;
+  margin-top       : 0px;
+}
+
+table.formtable td {  
+  border : 0;
+  padding : .5em .5em .5em .5em;
+}

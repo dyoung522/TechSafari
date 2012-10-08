@@ -1,0 +1,2 @@
+[% META title = 'TechSafari Top Of Mind Networks Reports' -%]
+[% PROCESS topofmind/reports_list.tt %]

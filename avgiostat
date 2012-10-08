@@ -1,0 +1,111 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my %totals = ();  # Keeps a running total for each device / stat
+my %counts = ();  # Keeps a running count of the stats for averages
+my %reset  = ();  # Semaphore var (see below for use)
+my $count  = 1;
+my ( $dev, $rrqm, $wrqm, $read, $write, $rsec, $wsec, $rkB, $wkB, $avgrq, $avgqu, $await, $svctm, $util, ) = ();
+
+my $threshold = 5;  # Set to the utilization threshold, anything below this will
+                     # cause a statistic reset after reset_count seconds.
+my $reset_count = 5;
+
+print "Lines only print if a device utilization goes above $threshold% (CTRL-C to Quit)\n";
+
+sub cleanexit() {
+    print "Terminated, closing files and exiting\n";
+    close IOSTAT;
+    print LOGFILE "Monitoring Complete\n";
+    close LOGFILE;
+    exit;
+}
+
+# Trap CTRL-C
+$SIG{INT} = \&cleanexit;
+
+# Open our logfile
+open LOGFILE, ">> iostat_results.txt" or die "Unable to open iostat_results.txt:  $!\n";
+
+# Run the iostat command
+open IOSTAT, "iostat -dxk 1 |" or die "Unable to run iostat!  $!\n";
+
+# Read the results
+while ( <IOSTAT> ) {
+
+    next unless /^sd/;  # Skip lines not associated with an sd device
+
+    my $rkBavg = 0;  # Clear the average
+    my $wkBavg = 0;  # Clear the average
+
+    my @time = localtime(time);  # Cache the local time
+    my $time = sprintf "%02d/%02d/%02d %02d:%02d:%02d",  # Format the local time
+        (@time)[4] + 1,    # Month
+        (@time)[3],        # Day
+        (@time)[5] - 100,  # Year
+        (@time)[2],        # Hour
+        (@time)[1],        # Min
+        (@time)[0];        # Sec
+
+    # Parse the iostat output (some versions don't report 'read' and 'write' columns)
+    my @iostat = split;
+    if ( @iostat == 14 ) {
+        ( $dev, $rrqm, $wrqm, $read, $write, $rsec, $wsec, $rkB, $wkB, $avgrq, $avgqu, $await, $svctm, $util, ) = @iostat;
+    } else {
+        ( $dev, $rrqm, $wrqm, $rsec, $wsec, $rkB, $wkB, $avgrq, $avgqu, $await, $svctm, $util, ) = @iostat;
+    }
+
+    # skip the first record read for each device, bogus data
+    if ( not defined $counts{$dev} ) {
+        $counts{$dev}{rkB} = 0;
+        $counts{$dev}{wkB} = 0;
+        $reset{$dev} = 1;  # Keeps the reset message from being displayed.
+        next;
+    }
+
+    # skip unless a device is in use
+    if ( $util < $threshold ) {
+        if ( $count++ >= $reset_count ) {
+            # Reset stats
+            $totals{$dev}{rkB} = 0;
+            $counts{$dev}{rkB} = 0;
+            $totals{$dev}{wkB} = 0;
+            $counts{$dev}{wkB} = 0;
+            $count = 1;
+            if ( not defined $reset{$dev} ) {
+                printf "[%s] %s  Statistics reset due to inactivity\n", $time, $dev;
+                printf LOGFILE "[%s] %s  Statistics reset due to inactivity\n", $time, $dev;
+                $reset{$dev} = 1;  # Only display this once until cleared below.
+            }
+        }
+        next;
+    }
+
+    $reset{$dev} = undef;  # Actively capturing data, so clear the reset semaphore.
+    $count = 1; # Reset our counter
+
+    # Keep a running total in MB/s
+    $totals{$dev}{rkB} += $rkB / 1024;
+    $counts{$dev}{rkB}++;
+
+    $totals{$dev}{wkB} += $wkB / 1024;
+    $counts{$dev}{wkB}++;
+
+    # Compute averages
+    $rkBavg = ( $totals{$dev}{rkB} / $counts{$dev}{rkB} ) if $counts{$dev}{rkB} > 0;
+    $wkBavg = ( $totals{$dev}{wkB} / $counts{$dev}{wkB} ) if $counts{$dev}{wkB} > 0;
+
+    # Display the results
+    printf "[%s] %s  %.2f rMB/s (%.2f avg)  %.2f wMB/s (%.2f avg)  %3d%% util\n",
+        $time, $dev,
+        $rkB / 1024, $rkBavg,
+        $wkB / 1024, $wkBavg,
+        $util;
+
+    printf LOGFILE "[%s] %s  %.2f rMB/s (%.2f avg)  %.2f wMB/s (%.2f avg)  %3d%% util\n",
+        $time, $dev,
+        $rkB / 1024, $rkBavg,
+        $wkB / 1024, $wkBavg,
+        $util;
+}

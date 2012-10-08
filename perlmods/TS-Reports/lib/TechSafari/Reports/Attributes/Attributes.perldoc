@@ -1,0 +1,12 @@
+=pod
+
+=HEAD1 TechSafari::Reports::Attributes
+
+The .pm modules in this folder are used to reconcile common instance
+attributes among the various TechSafari::Reports classes.  Each module is 
+implemented as a Moose::Role, and includes the common attribute with any 
+methods that are useful* in working with that attribute.
+
+
+
+

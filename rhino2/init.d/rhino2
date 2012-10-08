@@ -1,0 +1,227 @@
+#!/bin/sh
+#
+# rhino2:    Starts/Stops the Rhino2 Processes
+#
+# chkconfig: 345 97 03
+# description:  This is a start up script which handles the task of \
+#               starting and stopping the rhino2 processes.
+#
+# processname: r2sys_control
+# pidfile: /var/run/rhino2.pid
+#
+### BEGIN INIT INFO
+# Provides: rhino2
+# Required-Start: $network $mysql
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+die() {
+    echo $* && exit 1
+}
+
+# read configuration settings for rhino2, if present.
+#  this file should define R2HOME, R2LOG and FIFO_DIR
+CONF="/etc/sysconfig/rhino2"
+if [ -f $CONF ]; then
+    . $CONF
+else
+    die "Could not read $CONF"
+fi
+
+# Sanity checks.
+[ -n "$R2HOME" ]  || die "R2HOME not set in $CONF"
+[ -n "$R2LOG" ]   || die "R2LOG not set in $CONF"
+[ -n "$KEEPLOG" ] || die "KEEPLOG not set in $CONF"
+[ -n "$R2FIFO" ]  || die "R2FIFO not set in $CONF"
+[ -d "$R2FIFO" ]  || die "R2FIFO does not exist"
+[ -x "$R2HOME/bin/start.sh" ] || "Could not execute $R2HOME/bin/start.sh"
+[ -x "$R2HOME/bin/r2sys_control" ] || "Could not execute $R2HOME/bin/r2sys_control"
+/usr/bin/id -u "$R2USER" >/dev/null 2>&1 || die "$R2USER is not a valid user account"
+
+RETVAL=0
+LOCKFILE="/var/lock/subsys/rhino2"
+
+rotate_logs() {
+    # Rotate stderr.txt and stdout.txt log files
+    cd "$R2LOG" || die "Unable to change to $R2LOG"
+
+    INDEX=1
+    for LOG in stderr stdout ; do
+        [ -f ${LOG}.txt ] || continue
+
+        # Remove the oldest allowed log file if it exists
+        # this insures that INDEX below won't be greater than KEEPLOG
+        [ -f "${LOG}.${KEEPLOG}.txt" ] && rm -f "${LOG}.${KEEPLOG}.txt"
+
+        # Get the index of the oldest existing log file
+        while [ -e ${LOG}.${INDEX}.txt ] ; do
+            INDEX=$(expr $INDEX + 1)
+        done
+
+        # Rotate the older log files
+        SEQ=$(expr $INDEX - 1)
+        while [ $SEQ -gt 0 ] ; do
+            mv ${LOG}.${SEQ}.txt ${LOG}.${INDEX}.txt
+            INDEX=$(expr $INDEX - 1)
+            SEQ=$(expr $INDEX - 1)
+        done
+
+        # Move the existing files out of the way
+        mv ${LOG}.txt ${LOG}.1.txt
+    done
+
+    return
+}
+
+waitforpid() {
+    PID="$1"
+    TIMEOUT="${2:-300}"
+    TIMER=0
+
+    if [ -z "$PID" ] ; then
+        echo "Usage waitforpid <PID> [timeout]"
+        return 1
+    fi
+
+    if checkpid $PID ; then
+        while checkpid $PID ; do
+            sleep 1
+            [ $TIMER -ge $TIMEOUT ] && return 1
+            TIMER=$(expr $TIMER + 1)
+        done
+    fi
+
+    return 0
+}
+
+start() {
+    echo -n "Starting Rhino2 Backend Processes: "
+
+    # Start the r2sys_control daemon by calling start.sh with "INIT"
+    daemon --check r2sys_control --user $R2USER "cd $R2HOME/bin && ./start.sh INIT >/dev/null"
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE
+
+    # Echo a newline and return
+    echo ; return $RETVAL
+}
+
+stop() {
+    TIMEOUT=150    # How long (in seconds) do we wait for the process to shut down?
+    RETVAL=0
+
+    echo -n "Stopping Rhino2 Backend Processes: "
+    PID=$(pidofproc r2sys_control)
+    checkpid $PID && kill -15 $PID
+
+    # Wait for all the rhino2 processes to shut down cleanly
+    if ! waitforpid $PID $TIMEOUT ; then
+         failure ; echo ; return 1
+    fi
+
+    [ -f "$LOCKFILE" ] && rm -f "$LOCKFILE"
+    success ; echo ; return 0
+}
+
+reload() {
+    TIMEOUT=30
+    PROC="$1"
+
+    if [ -z "$PROC" ] ; then
+        echo "Usage: reload <process>"
+        return 1
+    fi
+
+    echo -n "Reloading $PROC:"
+
+    PID=$(pidofproc "$PROC")
+    checkpid $PID && kill -15 $PID
+
+    # Pause for it to die
+    if ! waitforpid $PID $TIMEOUT ; then
+         failure ; echo ; return 1
+    fi
+
+    # Pause for r2sys_control to reload it
+    sleep 2
+
+    # Check to be sure it's running again
+    NEWPID=$(pidofproc "$PROC")
+    if ! checkpid $NEWPID ; then
+        failure ; echo ; return 1
+    fi
+
+    success ; echo ; return 0
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        PID=$(pidofproc r2sys_control)
+        if checkpid $PID ; then
+            status r2sys_control
+        else
+            rotate_logs
+            start
+            RETVAL=$?
+        fi
+        ;;
+    stop)
+        stop
+        RETVAL=$?
+        ;;
+    status)
+        status r2sys_control
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        start
+        RETVAL=$?
+        ;;
+    rotate)
+        PID=$(pidofproc r2sys_control)
+        if checkpid $PID ; then
+            status r2sys_control
+        else
+            rotate_logs
+        fi
+        ;;
+    condrestart)
+        if [ -f "$LOCKFILE" ] ; then
+            stop && start
+            RETVAL=$?
+        fi
+        ;;
+    zap)
+        if [ -f "$LOCKFILE" ] ; then
+            PID=$(pidofproc r2sys_control)
+            if checkpid $PID ; then
+                status r2sys_control
+            else
+                rm -f "$LOCKFILE"
+                echo "$LOCKFILE removed"
+            fi
+        fi
+        ;;
+    reload)
+        [ -z "$2" ] && die "$0 reload <r2process>"
+
+        # Validate the process name given to us
+        if strstr "$VALIDPROCS" "$2" ; then
+            # Kill the existing process
+            reload "$2"
+            RETVAL=$?
+        else
+            echo "$2 is an invalid process name"
+            echo "Valid processes: $VALIDPROCS"
+            RETVAL=1
+        fi
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|rotate|zap}"
+        ;;
+esac
+exit $RETVAL

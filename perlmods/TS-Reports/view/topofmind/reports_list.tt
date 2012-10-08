@@ -1,0 +1,41 @@
+<h2> Top Of Mind Reports </h2>
+
+[% IF controller_path == '/'; 
+   SET old_controller_path = controller_path;
+   SET controller_path='/topofmind'; 
+   END %]
+
+<ul>
+  [% USE date; now = date.format(date.now, '%Y%m'); %]
+ 
+  <li> Monthly Movesignals - MTD
+  
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', now) %]">
+       html</a> 
+       
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', now, 'XLS') %]">
+       xls</a>        
+  </li>
+  
+  <li> Monthly Movesignals - June 08
+  
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', '200806') %]">
+       html</a> 
+
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', '200806', 'XLS') %]">
+       xls</a>        
+  </li>
+
+  <li> Monthly Movesignals - May 08
+  
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', '200805') %]">
+       html</a> 
+
+       <a href="[% c.uri_for(controller_path, 'monthly_movesignals', '200805', 'XLS') %]">
+       xls</a>
+  </li>
+
+
+</ul>
+
+[% IF old_controller_path; SET controller_path = old_controller_path; END %]

@@ -1,0 +1,52 @@
+TS-FtpTools version 0.13
+========================
+
+This is a wrapper toolkit for Net::FTP and Net::SCP to allow rapid
+development of scripts which require the transfer of files between
+two seperate systems via FTP.
+
+It uses a single hash to hold the details (such as username, password
+etc.).
+
+It provides the following functions:
+
+    get_ftp - download file(s)
+
+    put_ftp - upload file(s)
+
+    list_ftp - retrives an array of ls -lq from the server
+
+    is_ftp_ready - check remote files (for changes)
+
+In addition, it can read NcFTP bookmark files to identify systems:
+
+    get_bookmarks - reads an NcFTP bookmark file into a hash usable
+                    in the functions.
+
+    print_bookmarks - Displays the bookmarks in a human-readable format.
+
+Please See the POD documentation for complete details.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  Net::FTP
+
+COPYRIGHT AND LICENSE
+
+Copyright (C) 2008 by Donovan C. Young <dyoung@techsafari.com>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.5 or,
+at your option, any later version of Perl 5 you may have available.
+

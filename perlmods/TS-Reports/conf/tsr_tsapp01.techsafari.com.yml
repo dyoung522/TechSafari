@@ -1,0 +1,216 @@
+
+# yaml - remember: indentation matters! indent w/spaces. NO TABS
+
+
+###############################################################################
+##
+## Configuration for: tsapp01.techsafari.com
+##
+################################################################################
+---
+name: TS::Reports
+system: tsapp01.techsafari.com
+
+application_lib:
+  - /home/tuser/perlmods/TS-Reports/lib
+  - /home/tuser/perlmods/TS-Common/lib 
+
+template_include_path: /home/tuser/perlmods/TS-Reports/view
+reports_store: /data/rhino2/reports
+
+db_dsn:  dbi:mysql:database=rhino2;host=localhost
+db_user: root
+db_pass:
+
+## for testing... 
+# only_send_emails_to: calderman@techsafari.com
+
+email_rules:
+
+  ##################################
+  ####  Dataline Email Rules
+  ##################################
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts:  Dataline      
+      period: Daily
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: dataline_daily_invoices_[date].xls
+ 
+    email: 
+      to: dataline-reports@techsafari.com      
+      from:    do-not-reply@techsafari.com
+      subject: Dataline Daily online volume and query report - [date]
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts:  Dataline      
+      period: Monthly
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: dataline_monthly_invoices_[month].xls
+ 
+    email: 
+      to: dataline-reports@techsafari.com             
+      from:    do-not-reply@techsafari.com
+      subject: Dataline Monthly online volume and query report - [month]
+  
+   -
+    report:    
+      class:  Rhino2::QuickBooksReport    
+      hosts:  Dataline
+      period: Daily
+      
+    output_to: 
+      class: TechSafari::Reports::Util::IIF
+
+    filename: dataline_daily_quickbooks_[date].iif
+      
+    email: 
+      to: dataline-reports@techsafari.com             
+      from:    do-not-reply@techsafari.com
+      subject: Dataline Daily invoices Quickbooks file - [date]
+
+
+  ##################################
+  ####  DSOA Email Rules
+  ##################################
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts: 'Data Solutions of America, Inc.'
+      period: Daily
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: dsoa_daily_invoices_[date].xls
+ 
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: DSoA Daily online volume and query report - [date]
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts:  'Data Solutions of America, Inc.'
+      period: Monthly
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: dsoa_monthly_invoices_[month].xls
+ 
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: DSoA Monthly online volume and query report - [month]
+  
+   -
+    report:    
+      class:  Rhino2::QuickBooksReport    
+      hosts:  'Data Solutions of America, Inc.'
+      period: Daily
+      
+    output_to: 
+      class: TechSafari::Reports::Util::IIF
+
+    filename: dsoa_daily_quickbooks_[date].iif
+      
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: DSoA Daily invoices Quickbooks file - [date]
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts:  'RedDoor Marketing Private Label'
+      period: Daily
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: reddoormktg_daily_invoices_[date].xls
+ 
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: RedDoor Marketing Daily online volume and query report - [date]
+
+   - 
+    report:    
+      class:  Rhino2::BasicReport   
+      hosts:  'RedDoor Marketing Private Label'
+      period: Monthly
+    
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: reddoormktg_monthly_invoices_[month].xls
+ 
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: RedDoor Marketing Monthly online volume and query report - [month]
+   -
+
+    report:    
+      class:  Rhino2::QuickBooksReport    
+      hosts:  'RedDoor Marketing Private Label'
+      period: Daily
+      
+    output_to: 
+      class: TechSafari::Reports::Util::IIF
+
+    filename: reddoormktg_daily_quickbooks_[date].iif
+      
+    email: 
+      to: dsoa-reports@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: RedDoor Marketing Daily invoices Quickbooks file - [date]
+
+
+  ############################################
+  ####  General Orders Report for tsapp01
+  ############################################
+
+   -
+    report:
+      class:  Rhino2::OrdersReport
+      period: Monthly
+      hosts:
+        - 'Dataline'
+        - 'GE Healthcare - Third Wave'
+        - 'Data Solutions of America, Inc.'
+        - 'Data Crossing'
+        - 'RentBureau, LLC'
+        - 'RedDoor Marketing Private Label'
+
+    output_to: 
+      class:    Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: tsapp01_monthly_orders_[month].xls
+ 
+    email: 
+      to:      jgregory@techsafari.com     
+      from:    do-not-reply@techsafari.com
+      subject: tsapp01 monthly orders report - [month]
+

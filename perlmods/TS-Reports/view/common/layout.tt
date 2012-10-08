@@ -1,0 +1,9 @@
+<div id="header"><h1 class="title">[% template.title or site.title %]</h1></div>
+[% PROCESS common/breadcrumbs.tt %]
+<div id="content">
+[% IF status_msg %]<span class="message">[% status_msg %]</span>[% END %]
+[% IF error_msg %]<span class="error">[% error_msg %]</span>[% END %]
+[% content %]
+</div>
+
+<div id="footer"><div id="copyright">&copy; [% site.copyright %]</div></div>

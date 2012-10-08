@@ -1,0 +1,64 @@
+#!/usr/bin/expect --
+
+proc usage {} {
+    global argv0
+    send_user "Usage:  $argv0 <get|put> <pattern>\n"
+    exit
+}
+
+set TIMEOUT 30
+
+# Set access control variable here, this will need to change as necessary
+switch -- [ lindex $argv 0 ] {
+    "put" {
+        set SITE {esftpi.acxiom.com}
+        set USER {USER}
+        set PASS {PASSWORD}
+        set sftp_command {put}
+    }
+    "get" {
+        set SITE {esftpo.acxiom.com}
+        set USER {USER}
+        set PASS {PASSWORD}
+        set sftp_command {get}
+    }
+    default { usage }
+}
+
+# Create and check the list of files
+set filelist [ lrange $argv 1 end ]
+if { ! [ llength $filelist ] } {
+    puts "Empty file list"
+    usage
+}
+
+foreach FILE $filelist {
+    log_user 0 ;# Disable output
+    set timeout $TIMEOUT ;# Reset timeouts;
+
+    send_user "Connecting to $USER@$SITE..."
+    if [ catch "spawn sftp $USER@$SITE" reason ] {
+        send_user " FAILED ($reason)"
+        exit 1
+    }
+    expect {
+        "password:" { send "$PASS\r" }
+        timeout {
+            send_user " FAILED (timeout)"
+            exit 1
+        }
+    }
+    send_user " OK"
+
+    log_user 1 ;# Turn on command output
+    set timeout -1 ;# Disable timeouts during transfers
+    expect "sftp>" { send "$sftp_command $FILE\r" }
+    set timeout $TIMEOUT ;# re-enable timeouts
+    expect "sftp>" { send "ls -l $FILE\r" }
+    expect "sftp>" { send "quit\r" }
+    wait
+    send_user "\n" ;# Send newline
+}
+
+puts "Complete."
+

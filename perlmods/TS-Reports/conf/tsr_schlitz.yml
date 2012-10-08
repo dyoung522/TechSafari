@@ -1,0 +1,95 @@
+
+---
+name: TS::Reports
+system: schlitz
+
+application_lib:
+  - C:/charlie/src/perlmods/TS-Reports/lib
+  - C:/charlie/src/perlmods/TS-Common/lib 
+
+template_include_path: c:/charlie/src/perlmods/TS-Reports/view
+reports_store: .
+
+db_dsn:  dbi:mysql:database=rhino2;host=db05
+db_user: reports
+db_pass:
+
+email_rules:
+  -
+    report:    
+      class:  Rhino2::ActivityReport
+      hosts:  Name Seeker Inc.
+      period: Daily
+      
+      report_period_list:
+        - Daily
+       # - MonthToDate
+       # - PriorMonth
+      
+      activity_summary_rules:
+        -
+          - Auto Prescreen
+          - product_royalty_group: EFX Credit Auto 
+            disallowed_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Prescreen
+          - product_royalty_group: EFX Credit Mtg
+            disallowed_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Auto Trigger
+          - product_royalty_group: EFX Credit Auto
+            required_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Trigger
+          - product_royalty_group: EFX Credit Mtg
+            required_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Bankruptcy
+          - product_royalty_group: Bankruptcy File
+        -
+          - ITA
+          - product_royalty_group: ITA File
+        -
+          - Fares
+          - product_royalty_group: Tax Assessor
+        -
+          - New Mover
+          - product_royalty_group: New Mover File (Volt)
+        -
+          - Pre Mover
+          - product_royalty_group: PreMover File
+        -
+          - Equifax no FICO
+          - product_name: 'Equifax Credit Data - General'
+           
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/all_in_one_sheet.xls.tt
+
+    filename: masada_daily_activity_[date].xls
+      
+    email: 
+      to:      calderman@techsafari.com
+      from:    do-not-reply@techsafari.com
+      subject: Name Seeker Inc. Daily invoices Quickbooks file - [date]
+
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Masada      
+      period: Daily
+
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: masada_monthly_invoices_[month].xls
+     
+    email: 
+      to:      calderman@techsafari.com
+      from:    do-not-reply@techsafari.com
+      subject: masada Daily invoices Quickbooks file - [date]  

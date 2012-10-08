@@ -1,0 +1,39 @@
+
+[% META title = 'HTML Report' -%]
+
+[% FOREACH sheet IN workbook.worksheets -%]
+  <h2>[% sheet.title %]</h2>
+  
+  [% IF sheet.table_rows > 0 %]
+  
+  <table class="worksheet">
+    <tr>
+      [%- FOREACH col IN sheet.col_labels -%]
+        <td class="worksheet_header">[% FILTER html; GET col; END %]</td>
+      [%- END -%]
+    </tr>
+    [%- FOREACH row IN sheet.table -%]
+      <tr>
+        [%- FOREACH col IN row -%]
+        <td>[% FILTER html; GET col; END %]</td>
+        [%- END -%]
+      </tr>
+    [%- END -%]
+    <tr> 
+      [% IF sheet.has_cols_to_summarize %]
+        [% FOREACH col IN sheet.col_summary %]
+          <td class="worksheet_footer">[% col %]</td>
+        [% END %]
+      [% ELSE %]
+        <td class="worksheet_footer"> Total Rows: </td>
+        <td class="worksheet_footer"> [% sheet.table_rows %] </td>
+      [% END %]
+    </tr>
+  </table>
+  
+  [% ELSE %]
+  No Results Found.
+  [% END %]
+  
+[% END %]
+

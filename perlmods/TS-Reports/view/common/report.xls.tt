@@ -1,0 +1,77 @@
+<workbook>
+
+  [% FOREACH sheet IN workbook.worksheets %]
+  <worksheet name="[% sheet.name.substr(0, 31) %]">
+  
+    [% ### Header ### %]
+    <row>
+      [% FOREACH col IN sheet.col_labels %]
+        <bold><cell>[% FILTER html_entity %][% col %][% END %]</cell></bold>
+      [% END %]
+    </row>
+    
+    [% IF sheet.table_rows > 0 %]
+    
+      [% ### Table ### %]
+      [% FOREACH row IN sheet.table %]
+        <row>
+          [% FOREACH col IN sheet.col_labels %]
+            [% index = sheet.col_index.$col; 
+               val   = row.$index;
+            %]
+            
+            [% IF sheet.col_types.$index == 'Number';      open_format = 1 %]
+              <format num_format="#,##0">
+            [% ELSIF sheet.col_types.$index == 'Currency'; open_format = 1 %]
+              <format num_format="\$#,##0.00">
+            [% ELSIF sheet.col_types.$index == 'Date';     open_format = 1 %]
+              <format num_format="mm/dd/yy">
+            [% ELSIF sheet.col_types.$index == 'Decimal';  open_format = 1 %]
+              <format num_format="#,##0.000">              
+            [% END %]
+ 
+            <cell>[% FILTER html_entity; GET val; END %]</cell>
+            
+            [% IF open_format; open_format = 0 %]
+              </format>
+            [% END %]
+
+          [% END %]
+        </row>
+      [% END %]
+      
+      [% ### Summary row ### %]
+      <row> 
+        [% IF sheet.has_cols_to_summarize %]
+          [% FOREACH col IN sheet.col_labels %]
+            [% index = sheet.col_index.$col %]
+            
+            [% IF sheet.col_types.$index == 'Number';      open_format = 1 %]
+              <format num_format="#,##0">
+            [% ELSIF sheet.col_types.$index == 'Currency'; open_format = 1 %]
+              <format num_format="\$#,##0.00">
+            [% ELSIF sheet.col_types.$index == 'Decimal';  open_format = 1 %]
+              <format num_format="#,##0.000">              
+            [% END %]
+            
+            <bold><cell>[% sheet.col_summary.$index %]</cell></bold>
+            
+            [% IF open_format; open_format = 0 %]
+              </format>
+            [% END %]          
+         
+          [% END %]
+        [% ELSE %]
+          <bold>
+            <cell>Total Rows:</cell>
+            <cell>[% sheet.table_rows %]</cell>
+          </bold>
+        [% END %]
+      </row>
+    [% ELSE %]
+      <row> <cell> No Results Found.</cell> </row>
+    [% END %]
+  </worksheet>
+  [% END %]
+  
+</workbook>

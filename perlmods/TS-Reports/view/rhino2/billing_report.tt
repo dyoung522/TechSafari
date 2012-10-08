@@ -1,0 +1,53 @@
+
+[% META title = 'Rhino2 Billing Report' -%]
+[% PROCESS common/load_date_chooser.tt %]
+
+<br />
+<form method="post" action="[% form_action %]">
+<table class="formtable">
+  <tr>
+    <td>Run Date:</td>     
+    <td><p id="date_chooser_div">
+        <input type="text" name="run_date" id="date_chooser_input" />
+        <a id="date_chooser_link" href="#" border>
+          <img src="/static/images/nuvola/date.png"
+           class="borderless" height="22" width="22" />
+        </a>
+        </p>
+    </td>
+  </tr>
+  <tr>
+    <td>Hosts: </td>
+    <td><select name="hosts" multiple>
+          [% FOREACH host IN hosts -%]
+          <option value="[% host.key %]" [% IF host.value %]selected[% END %]>[% host.key %]</option>
+          [%- END %]
+        </select>
+    </td>
+  </tr>
+  
+  <tr>
+    <td> Royalty Groups: </td>
+    <td> <select name="royalty_groups" multiple>
+           [% FOREACH rg IN royalty_groups -%]
+           <option value="[% rg.key %]" [% IF rg.value %]selected[% END %]>[% rg.key %]</option>
+           [%- END %]
+         </select>
+    </td>
+  
+  </tr>
+  
+  <tr><td>Report Type:</td>  
+    <td><input type="radio" name="report_type" value="Daily" checked /> Daily
+        <input type="radio" name="report_type" value="Monthly" /> Monthly
+    </td>
+  </tr>
+  <tr><td>Output to:</td> 
+    <td><input type="radio" name="view_type" value="XLS" checked /> Excel
+        <input type="radio" name="view_type" value="HTML" /> HTML </td>
+  </tr>
+  <tr> <td><input type="submit" name="Submit" value="Submit" /></td> 
+  </tr>
+</table>
+
+</form>

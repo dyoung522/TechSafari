@@ -1,0 +1,42 @@
+#!/bin/bash
+
+CONF_FILE="/etc/diskconfig.conf"
+
+# Set verbose if we're run in a terminal
+VERBOSE=0
+[[ tty ]] && VERBOSE=1
+
+# Check and read our config file
+if [[ -f $CONF_FILE ]] ; then
+    source $CONF_FILE
+else
+    [[ $VERBOSE ]] && echo "$CONF_FILE does not exist"
+    exit 1
+fi
+
+[[ $VERBOSE ]] && echo "Checking for 3ware devices"
+
+for DEV in /sys/block/sd? ; do
+    if grep -qi amcc $DEV/device/vendor ; then
+
+        RAW_DEV="${DEV##*/}"
+        BLK_DEV="/dev/${RAW_DEV}"
+
+        [[ $VERBOSE ]] && echo "    Found $RAW_DEV"
+
+        if [[ -n "$NR_REQUESTS" && $NR_REQUESTS -gt 0 ]] ; then
+            [[ $VERBOSE ]] && echo "        Setting nr_requests to $NR_REQUESTS"
+            echo $NR_REQUESTS > $DEV/queue/nr_requests
+        fi
+
+        if [[ -n "$SETRA" && $SETRA -gt 0 ]] ; then
+            if [[ -b ${BLK_DEV} ]] ; then
+                [[ $VERBOSE ]] && echo "        Setting read-ahead to $SETRA"
+                /sbin/blockdev --setra $SETRA ${BLK_DEV}
+            else
+                [[ $VERBOSE ]] && echo "        ${BLK_DEV} is not a block device"
+            fi
+        fi
+
+    fi
+done

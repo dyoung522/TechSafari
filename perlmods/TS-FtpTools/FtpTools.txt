@@ -1,0 +1,178 @@
+NAME
+    TS::FtpTools - Perl extension for transferring files between two systems
+
+SYNOPSIS
+    use TS::FtpTools qw(:ftp :bookmarks :pgp);
+
+DESCRIPTION
+    Provides a wrapper for the Net::FTP and Net::SCP CPAN modules for easier
+    use in perl scripts.
+
+    Use of perl's warning flag (-w) will cause some functions to display
+    error messages when encoutered. Remove the -w when running in production
+    if you don't wish this output.
+
+STRUCTURES
+    Bookmark Hash
+        The Bookmark hash is a hash of hashes which is used by many of the
+        fuctions within this module to provide input. It can be user
+        created, or built via an ncftp bookmark file (using get_bookmarks).
+
+        It's constructed as follows:
+
+            $HASH = {
+                  ID => {              The ID for this entry
+                            URL     => The URL or IP address to connect to
+                            USER    => The Username to log in as
+                            PASS    => The Password to use
+                            PASV    => 0 == off, 1 == on
+                            PORT    => The FTP port to use (default is 21)
+                            RDIR    => The remote directory to CD to once connected
+                            LDIR    => The local directory to CD to once connected
+                            COMMENT => A Freeform text comment for this entry
+                            RENAME  => If defined, any source files that are
+                                       sucessfully retrieved or sent are renamed to
+                                       include this as a suffix.  (used to rename files
+                                       after a transfer so we don't get them again on
+                                       the next run)
+                        }
+                };
+
+        Please Note most of the functions listed below only accept a single
+        hash reference, so you'll need to pass just the entry you wish to
+        work with ( e.g. $HASH{ID} ).
+
+    @files list
+        This is just a normal array which contains a list of files you want
+        to work with. The list may include paths relative to RDIR, absolute
+        paths, and/or any valid ftp file patterns.
+
+FUNCTIONS
+    get_bookmarks( <bookmark file> [, pattern [, ...]] )
+        Reads an NcFTP bookmark file and returns a reference to a Bookamrk
+        Hash containing either all bookmarks or only those matching the
+        given pattern(s).
+
+        Returns undef if no entries are found.
+
+    print_bookmarks( %bookmarks )
+        Prints a report of all bookmarks in Bookmark Hash to STDOUT. Useful
+        for looking up bookmarks.
+
+        *Note that neither get_bookmarks nor print_bookmarks are exported by
+        default, use :bookmarks to include them in your code*
+
+    get_ftp( \%bookmark, @files )
+    put_ftp( \%bookmark, @files )
+        Transfers all files in the @Files list to either the current or
+        remote directory using the information in bookmark reference.
+
+        @Files is a standard list of files to retrieve and may include the
+        absolute path or a relative path.
+
+        Returns undef on error, 1 on success and > 1 if non-fatal errors
+        were encountered (e.g. Local file already exists).
+
+    ls_ftp( \%hash, @filelist )
+        Validates the files given in @filelist and Returns an array of
+        filenames which exist on the server specified in the %bookmark_hash.
+
+        Returns undef on error.
+
+    list_ftp( \%bookmark, @files )
+        Returns a reference to an array of long listings (ls -lg) of each
+        file in @Files or every file if @Files is empty or omitted.
+
+        @Files is a standard list of files to retrieve and may include the
+        absolute path or a relative path and shell patterns.
+
+        Returns undef on error or an array ref on success.
+
+    is_ftp_ready( \%bookmark, @files )
+        Checks a remote FTP site for any files that may still be changing.
+
+        This is useful when watching a remote FTP site for new files, it can
+        be used to be sure the transfer has completed on the remote end
+        before we download.
+
+        @Files is a standard list of files to retrieve and may include the
+        absolute path or a relative path.
+
+        Returns: undef if there was an error. 0 if there were no files. 1 if
+        the files are ready. 2 if files are still growing.
+
+    pgp_encrypt( $pgpfile, $key )
+        Encrypts the file named in $pgpfile using $key. The proper pgp key
+        must exist on the calling users's keyring.
+
+        Returns true on sucess, undef on failure.
+
+    pgp_decrypt( $pgpfile, $password )
+        Decrypts a pgp encrypted file named in $pgpfile using $password. The
+        proper pgp key must exist on the calling users's keyring.
+
+        Returns true on sucess, undef on failure.
+
+UTILITY FUNCTIONS
+    send_mail( $recipient, $subject, @message );
+        Sends an email to $recipient with the subject $subject and @message
+        in the body.
+
+        returns true on success, undef on failure. Only checks the status of
+        the system call, does not (can not) guarantee the mail will actually
+        be delivered.
+
+EXAMPLES
+    Bookmarks example
+        Prints the URL associated with all bookmark entries in the file
+        ".ncftp/bookmarks"
+
+            #!/usr/bin/perl -w
+
+            use TS::FtpTools q(:bookmarks);
+
+            my $Bookmark = get_bookmarks( '.ncftp/bookmarks' );
+
+            foreach my $Key ( sort keys %{$Bookmark} ) {
+                print "The URL for $Key is $Bookmark->{$Key}{'URL'}\n";
+            }
+
+    get_ftp example
+        Retrives all files ending in .pgp from /some/directory on the
+        ftp.somedomain.com ftp site.
+
+            #!/usr/bin/perl -w
+
+            use TS::FtpTools q(:ftp);
+
+            my @filepattern = q(*.pgp);
+            my %ftphash = (
+                'URL'  => q(ftp.somedomain.com),
+                'USER' => q(ftpuser),
+                'PASS' => q(ftppassword),
+                'RDIR' => q(/some/directory),
+            );
+
+            my $ready = is_ftp_ready( \%ftphash, @filepattern )
+                    or die "Error checking files";
+
+            print "There aren't any files matching @filepattern\n" if not $ready;
+
+            get_ftp( \%ftphash, @filepattern ) or mydie "Unable to retrieve @filepattern" if $ready == 1;
+
+            print "One or more files aren't ready." if $ready == 2;
+
+SEE ALSO
+    This modules relies heavily on Net::FTP & Net::SCP to provide the core
+    functionality.
+
+AUTHOR
+    Donovan C. Young, <dyoung@techsafari.com>
+
+COPYRIGHT AND LICENSE
+    Copyright (C) 2008 by Donovan C. Young & TechSafari, LLC
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself, either Perl version 5.8.5 or, at
+    your option, any later version of Perl 5 you may have available.
+

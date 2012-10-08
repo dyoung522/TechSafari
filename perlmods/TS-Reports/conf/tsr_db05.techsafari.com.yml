@@ -1,0 +1,607 @@
+# yaml - remember: indentation matters! indent w/spaces. NO TABS
+
+
+################################################################################
+##
+## Configuration for: db05.techsafari.com
+##
+################################################################################
+---
+name: TS::Reports
+system: db05.techsafari.com
+
+application_lib:
+  - /home/tuser/perlmods/TS-Reports/lib
+  - /home/tuser/perlmods/TS-Common/lib 
+
+template_include_path: /home/tuser/perlmods/TS-Reports/view
+
+reports_store: /data1/reports_store
+
+db_dsn:  dbi:mysql:database=rhino2;host=localhost
+db_user: root
+db_pass:
+
+email_rules:
+
+  ##################################
+  ####  Name Seeker Email Rules
+  ##################################
+  
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Name Seeker Inc.      
+      period: Daily
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+        - 'EFX General'
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+ 
+    filename: nameseeker_daily_invoices_[date].xls
+ 
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        
+      from: do-not-reply@techsafari.com
+      
+      subject: Name Seeker Inc. Daily online volume and query report - [date]
+
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Name Seeker Inc.      
+      period: Monthly
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+        - 'EFX General'
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: nameseeker_monthly_invoices_[month].xls
+ 
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        
+      from: do-not-reply@techsafari.com
+
+      subject: Name Seeker Inc. Monthly online volume and query report - [month]
+
+  - 
+    report:    
+      class:  Rhino2::ActivityReport   
+      hosts:  Name Seeker Inc.      
+      period: Daily
+
+      report_period_list:
+        - Daily
+        - MonthToDate
+        - PriorMonth
+
+      activity_summary_rules:
+        -
+          - Auto Prescreen
+          - product_royalty_group: EFX Credit Auto 
+            disallowed_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Prescreen
+          - product_royalty_group: EFX Credit Mtg
+            disallowed_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Auto Trigger
+          - product_royalty_group: EFX Credit Auto
+            required_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Trigger
+          - product_royalty_group: EFX Credit Mtg
+            required_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Bankruptcy
+          - product_royalty_group: Bankruptcy File
+        -
+          - ITA
+          - product_royalty_group: ITA File
+        -
+          - Fares
+          - product_royalty_group: Tax Assessor
+        -
+          - New Mover
+          - product_royalty_group: New Mover File (Volt)
+        -
+          - Pre Mover
+          - product_royalty_group: PreMover File
+        -
+          - Equifax no FICO
+          - product_name: 'Equifax Credit Data - General'
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/all_in_one_sheet.xls.tt
+ 
+    filename: nameseeker_daily_activity_[date].xls
+ 
+    email: 
+      to:      daily-sales@techsafari.com        
+      from:    do-not-reply@techsafari.com
+      subject: Name Seeker Inc. Daily activity report - [date]
+   
+  -
+    report:    
+      class:  Rhino2::QuickBooksReport    
+      hosts:  Name Seeker Inc.
+      period: Daily
+      
+    output_to: 
+      class: TechSafari::Reports::Util::IIF
+
+    filename: nameseeker_daily_quickbooks_[date].iif
+      
+    email: 
+      to:      daily-qb@techsafari.com
+      from:    do-not-reply@techsafari.com
+      subject: Name Seeker Inc. Daily invoices Quickbooks file - [date]
+
+  -
+    report:    
+      class:  Rhino2::TriggerReport   
+      hosts:  Name Seeker Inc.
+      period: Daily
+      
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: nameseeker_daily_triggers_[date].xls
+      
+    email: 
+      to:      trigger_volume@techsafari.com
+      from:    do-not-reply@techsafari.com
+      subject: Name Seeker Inc. Daily trigger volume - [date]
+
+  -
+    report:    
+      class:  Rhino2::QueryReport   
+      hosts:  Name Seeker Inc.
+      period: Daily
+      
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: nameseeker_daily_query_report_[date].xls
+      
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        
+      from:    do-not-reply@techsafari.com
+      subject: Name Seeker Inc. Daily query report - [date]
+
+
+
+  ##################################
+  ####  Masada Email Rules
+  ##################################
+   
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Masada      
+      period: Daily
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+ 
+    filename: masada_daily_invoices_[date].xls
+
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        - bobbrody@aol.com
+        
+      from: do-not-reply@techsafari.com
+      
+      subject: Masada Daily online volume and query report - [date]
+
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Masada      
+      period: SemiMonthly
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: masada_semimonthly_invoices_[date].xls
+
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        - bobbrody@aol.com
+        
+      from: do-not-reply@techsafari.com
+
+      subject: Masada Semi-Monthly online volume and query report - [date]
+      
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Masada      
+      period: Monthly
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: masada_monthly_invoices_[month].xls
+     
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        - bobbrody@aol.com
+        
+      from: do-not-reply@techsafari.com
+
+      subject: Masada Monthly online volume and query report - [month]
+   
+  - 
+    report:    
+      class:  Rhino2::ActivityReport   
+      hosts:  Masada      
+      period: Daily
+
+      report_period_list:
+        - Daily
+        - MonthToDate
+        - PriorMonth
+
+      activity_summary_rules:
+        -
+          - Auto Prescreen
+          - product_royalty_group: EFX Credit Auto 
+            disallowed_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Prescreen
+          - product_royalty_group: EFX Credit Mtg
+            disallowed_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Auto Trigger
+          - product_royalty_group: EFX Credit Auto
+            required_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Trigger
+          - product_royalty_group: EFX Credit Mtg
+            required_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Bankruptcy
+          - product_royalty_group: Bankruptcy File
+        -
+          - ITA
+          - product_royalty_group: ITA File
+        -
+          - Fares
+          - product_royalty_group: Tax Assessor
+        -
+          - New Mover
+          - product_royalty_group: New Mover File (Volt)
+        -
+          - Pre Mover
+          - product_royalty_group: PreMover File
+        -
+          - Move Signals / Masada New Mover
+          - product_name: New Movers File
+        -
+          - LSSi/Volt New Mover
+          - product_name: LSSi/Volt New Mover
+
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/all_in_one_sheet.xls.tt
+
+    filename: masada_daily_activity_[date].xls
+     
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        - bobbrody@aol.com
+        
+      from: do-not-reply@techsafari.com
+      
+      subject: Masada Daily activity report - [date]
+
+  -
+    report:    
+      class:  Rhino2::QueryReport   
+      hosts:  Masada
+      period: Daily
+      
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: masada_daily_query_report_[date].xls
+      
+    email: 
+      to:
+        - pstoogenke@market-tech.com
+        - jgregory@techsafari.com
+        - bobbrody@aol.com
+        
+      from:    do-not-reply@techsafari.com
+      subject: Masada Daily query report - [date]
+
+
+
+  ##################################
+  ####  Move Signals Email Rules
+  ##################################
+      
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Move Signals      
+      period: Daily
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: movesignals_daily_invoices_[date].xls
+ 
+    email: 
+      to:      reporting@movesignals.com        
+      from:    do-not-reply@techsafari.com
+      subject: Move Signals Daily online volume and query report - [date]
+      
+  - 
+    report:    
+      class:  Rhino2::BasicRoyaltyGroups   
+      hosts:  Move Signals      
+      period: Monthly
+
+      royalty_groups:
+        - 'Beacon 5.0 Score'
+        - 'Beacon 5.0 Auto'
+        - 'Bankruptcy File'
+        - 'Demographic File'
+        - 'Equifax Auto Triggers'
+        - 'Equifax Mortgage Triggers'
+        - 'Tax Assessor'
+        - 'Telephone'
+        - 'ITA File'
+        - 'Student Loan'
+        - 'EFX Credit Auto'
+        - 'EFX Credit Mtg'
+        - 'PreMover File'
+        - 'New Mover File (Volt)'
+
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: movesignals_monthly_invoices_[month].xls
+ 
+    email: 
+      to:      reporting@movesignals.com        
+      from:    do-not-reply@techsafari.com
+      subject: Move Signals Monthly online volume and query report - [month]
+      
+  - 
+    report:    
+      class:  Rhino2::ActivityReport   
+      hosts:  Move Signals      
+      period: Daily
+
+      report_period_list:
+        - Daily
+        - MonthToDate
+        - PriorMonth
+
+      activity_summary_rules:
+        -
+          - Auto Prescreen
+          - product_royalty_group: EFX Credit Auto 
+            disallowed_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Prescreen
+          - product_royalty_group: EFX Credit Mtg
+            disallowed_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Auto Trigger
+          - product_royalty_group: EFX Credit Auto
+            required_selects:
+              - Equifax Auto Triggers
+        -
+          - Mortgage Trigger
+          - product_royalty_group: EFX Credit Mtg
+            required_selects:
+              - Equifax Mortgage Triggers
+        -
+          - Bankruptcy
+          - product_royalty_group: Bankruptcy File
+        -
+          - ITA
+          - product_royalty_group: ITA File
+        -
+          - Fares
+          - product_royalty_group: Tax Assessor
+        -
+          - New Mover
+          - product_royalty_group: New Mover File (Volt)
+        -
+          - Pre Mover
+          - product_royalty_group: PreMover File
+        -
+          - Move Signals / Masada New Mover
+          - product_name: New Movers File
+        -
+          - LSSi/Volt New Mover
+          - product_name: LSSi/Volt New Mover
+
+    
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/all_in_one_sheet.xls.tt
+ 
+    filename: movesignals_daily_activity_[date].xls 
+ 
+    email: 
+      to:      reporting@movesignals.com        
+      from:    do-not-reply@techsafari.com
+      subject: Move Signals Daily activity report - [date]
+
+  -
+    report:    
+      class:  Rhino2::QuickBooksReport    
+      hosts:  Move Signals
+      period: Daily
+      
+    output_to: 
+      class: TechSafari::Reports::Util::IIF
+
+    filename: movesignals_daily_quickbooks_[date].iif
+      
+    email: 
+      to:      quickbooks@movesignals.com
+      from:    do-not-reply@techsafari.com
+      subject: Move Signals Daily invoices Quickbooks file - [date]
+
+  -
+    report:    
+      class:  Rhino2::QueryReport   
+      hosts:  Move Signals
+      period: Daily
+      
+    output_to: 
+      class:  Excel::Template::Plus
+      template: common/report.xls.tt
+
+    filename: movesignals_daily_query_report_[date].xls
+      
+    email: 
+      to:      reporting@movesignals.com        
+      from:    do-not-reply@techsafari.com
+      subject: Move Signals Daily query report - [date]
+
+
